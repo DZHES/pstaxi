@@ -1,0 +1,133 @@
+[
+  {
+    "model": "motorpool.brand",
+    "pk": 1,
+    "fields": {
+      "title": "����"
+    }
+  },
+  {
+    "model": "motorpool.brand",
+    "pk": 4,
+    "fields": {
+      "title": "BMW"
+    }
+  },
+  {
+    "model": "motorpool.brand",
+    "pk": 5,
+    "fields": {
+      "title": "Toyota"
+    }
+  },
+  {
+    "model": "motorpool.brand",
+    "pk": 6,
+    "fields": {
+      "title": "Nissan"
+    }
+  },
+  {
+    "model": "motorpool.brand",
+    "pk": 7,
+    "fields": {
+      "title": "Ferrari"
+    }
+  },
+  {
+    "model": "motorpool.brand",
+    "pk": 8,
+    "fields": {
+      "title": "Lada"
+    }
+  },
+  {
+    "model": "motorpool.option",
+    "pk": 1,
+    "fields": {
+      "title": "������� ������"
+    }
+  },
+  {
+    "model": "motorpool.option",
+    "pk": 2,
+    "fields": {
+      "title": "���������� �����"
+    }
+  },
+  {
+    "model": "motorpool.option",
+    "pk": 3,
+    "fields": {
+      "title": "����� ����� � ������� ���"
+    }
+  },
+  {
+    "model": "motorpool.option",
+    "pk": 4,
+    "fields": {
+      "title": "������� ������������"
+    }
+  },
+  {
+    "model": "motorpool.option",
+    "pk": 5,
+    "fields": {
+      "title": "������� ��� ��������"
+    }
+  },
+  {
+    "model": "motorpool.option",
+    "pk": 6,
+    "fields": {
+      "title": "�������� � ������� �������"
+    }
+  },
+  {
+    "model": "motorpool.auto",
+    "pk": 2,
+    "fields": {
+      "brand": 1,
+      "number": "8971388",
+      "description": "vnndvjrbhjfr",
+      "year": 1886,
+      "auto_class": "b",
+      "options": []
+    }
+  },
+  {
+    "model": "motorpool.auto",
+    "pk": 3,
+    "fields": {
+      "brand": 5,
+      "number": "824687",
+      "description": "�����������",
+      "year": 1988,
+      "auto_class": "b",
+      "options": [
+        3,
+        5,
+        6
+      ]
+    }
+  },
+  {
+    "model": "motorpool.vehiclepassport",
+    "pk": 1,
+    "fields": {
+      "auto": 2,
+      "vin": "123",
+      "engine_volume": 34,
+      "engine_power": 12
+    }
+  },
+  {
+    "model": "motorpool.vehiclepassport",
+    "pk": 2,
+    "fields": {
+      "auto": 3,
+      "vin": "543",
+      "engine_volume": 2,
+      "engine_power": 1
+    }
+  }
