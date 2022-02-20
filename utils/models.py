@@ -9,3 +9,5 @@ def generate_unique_slug(model, value):
         count += 1
 
     return unique_slug
+
+

@@ -1,11 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
 from utils.models import generate_unique_slug
+from django.urls import reverse
+from django.conf import settings
+from django.utils.text import slugify
+from unidecode import unidecode
 
 
 class Brand(models.Model):
     title = models.CharField(max_length=104, verbose_name='Название')
     slug = models.SlugField(max_length=250, blank=True, default='')
+    logo = models.ImageField(upload_to='motorpool/brands/', blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.slug = generate_unique_slug(Brand, self.title)
@@ -17,6 +22,13 @@ class Brand(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse('motorpool:brand_detail', args=[str(self.pk)])
+
+    @property
+    def logo_url(self):
+        return self.logo.url if self.logo else f'{settings.STATIC_URL}images/brand-car.png'
 
 class Option(models.Model):
     title = models.CharField(max_length=100)
@@ -30,6 +42,16 @@ class Option(models.Model):
 class AutoManagerVolvo(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(brand__title='Volvo')
+
+def get_upload_to_auto(instance, filename):
+    full_file_name = 'motorpool/auto'
+    if instance.brand:
+        if instance.brand.slug:
+            full_file_name += f'/{instance.brand.slug}'
+        else:
+            full_file_name += f'/{slugify(unidecode(instance.brand.title), allow_unicode=True)}'
+        full_file_name += f'/{filename}'
+    return full_file_name
 
 class Auto(models.Model):
     AUTO_CLASS_ECONOMY = 'e'
