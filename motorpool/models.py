@@ -106,3 +106,9 @@ class Profile(models.Model):
     phone = models.CharField(max_length=30, null=True, blank=True, verbose_name='Телефон')
     address = models.CharField(max_length=250, null=True, blank=True, verbose_name='Адрес')
 
+class Favorite(models.Model):
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='favorites')
+    brand = models.ForeignKey(Brand, null=True, on_delete=models.CASCADE, related_name='favorites')
+
+    def __str__(self):
+        return f'{self.user.username} - {self.brand.title}'

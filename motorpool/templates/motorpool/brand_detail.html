@@ -76,7 +76,14 @@
                     <p class="text-muted">April 5, 2019</p>
                     <p>Ездил по москве. Все гуд:)</p>
                 </div>
-                <a href="" class="btn btn-lg btn-primary mt-4">Редактировать</a>
+                <a href="{% url 'motorpool:brand_update' brand.pk %}" class="btn btn-lg btn-primary mt-4">Редактировать</a>
+                <a href="{% url 'motorpool:brand_delete' brand.pk %}" class="btn btn-lg btn-danger mt-4">Удалить</a>
+                <a href="{% url 'motorpool:auto_create' brand.pk %}" class="btn btn-lg btn-secondary mt-4">Добавить авто</a>
+                <form action="{% url 'motorpool:brand_add_to_favorite' %}" method="post">
+                    {% csrf_token %}
+                    {{ favorite_form }}
+                    <button type="submit" class="btn btn-outline-danger mt-4">+</button>
+                </form>
             </div>
         </div>
     </div>
