@@ -1,0 +1,23 @@
+{% extends "__base.html" %}
+{% block title %}Войти{% endblock %}
+{% block content %}
+{% load socialaccount %}
+{% load static %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>Войти</h1>
+            <hr>
+            <a href="{% provider_login_url 'github' %}" class="btn btn-dark btn-block">
+                <i class="bi bi-github"></i>
+                Войти через Github
+            </a>
+            <form action="." method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Войти</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

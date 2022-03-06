@@ -1,0 +1,67 @@
+{% extends "__base.html" %}
+{% load static %}
+{% block title %}PS-Taxi - сервис бронирования автомобилей{% endblock %}
+
+{% block content %}
+
+<!-- START WRAPPER -->
+<div class="hero-box hero-bg-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7">
+                <h1 class="text-white">Найди лучшую машину</h1>
+                <h2 class="text-white">Путешествуй с удовольствием</h2>
+                <p class="text-white mt-4">Сервис аренды авто по всему миру</p>
+            </div>
+            <div class="col-lg-5">
+                <div class="card">
+                    <div class="card-header">
+                        Забронировать авто
+                    </div>
+                    <div class="card-body">
+                        <form action="">
+                            <div class="mb-3">
+                                <h5 class="mb-2">Класс авто:</h5>
+                                <select class="form-select">
+                                    <option selected>....................</option>
+                                    <option value="1">Эконом</option>
+                                    <option value="2">Комфорт</option>
+                                    <option value="3">Бизнес</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Найти</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END WRAPPER -->
+
+<!-- START BRAND LIST AREA -->
+<div class="container py-4 my-4">
+    <h2 class="text-center">Популярные бренды</h2>
+    <div class="row py-4 my-4">
+        {% for brand in brand_list %}
+        <div class="col-lg-4">
+            <div class="card mb-3">
+                <a href="#" class="text-center">
+                    <img src="{{ brand.logo_url }}" class="card-img-top avatar-xxl" alt="brand">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="#" class="text-decoration-none">{{ brand.title }}</a>
+                    </h5>
+                    <p class="card-text">$58.00 Per day</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<!-- END BRAND LIST AREA -->
+
+{% include "snippets/_cta.html" %}
+
+{% endblock %}

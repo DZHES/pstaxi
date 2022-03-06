@@ -30,6 +30,16 @@
         {% endfor %}
     </div>
     {% include "snippets/_pagination.html" %}
+    <form action="{% url 'motorpool:brand_list_set_paginate' %}" method="post" class="row row-cols-lg-auto">
+    {% csrf_token %}
+    <div class="col-12">
+        <div class="form-floating mb-1">
+            <input type="text" name="item_count" class="form-control" id="itemCount">
+            <label for="itemCount">Выводить брендов</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+    </div>
+</form>
 </div>
 <!-- END CARD -->
 

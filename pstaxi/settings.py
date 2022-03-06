@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import environ
 from pathlib import Path
+from django.urls import reverse_lazy
+from django.core.mail import EmailMultiAlternatives
 
 env = environ.Env()
 environ.Env.read_env()
@@ -40,12 +42,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     #Third Party apps
     'django_cleanup.apps.CleanupConfig',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.github',
 
     #Project apps
-    'motorpool'
+    'motorpool.apps.MotorpoolConfig',
+    'accounts.apps.AccountsConfig',
+    'main.apps.MainConfig',
 ]
 
 MIDDLEWARE = [
@@ -123,13 +132,14 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
+
+STATIC_URL = '/static/'
+
 STATICFILES_DIRS = [
     BASE_DIR / 'assets',
 ]
-STATIC_URL = '/static/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -138,6 +148,33 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_REDIRECT_URL = '/'
+
+LOGOUT_REDIRECT_URL = '/'
+
+LOGIN_URL = reverse_lazy('accounts:sign_in')
+
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_PORT = 2525
+EMAIL_HOST_USER = "flora02.02@mail.ru"
+EMAIL_HOST_PASSWORD = "D7WWa9NBAKuV1ctDb3hp"
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
+AUTHENTICATION_BACKENDS = (
+    # Необходим для входа в административную часть сайта под username для админа. Должен быть независимо от 'allauth'
+    'django.contrib.auth.backends.ModelBackend',
+
+    # Специальные методы аутентификации 'allauth', такие как вход в систему по электронной почте
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+SITE_ID = 1
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 
 import django_heroku
 django_heroku.settings(locals())

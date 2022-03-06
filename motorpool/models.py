@@ -100,12 +100,6 @@ class VehiclePassport(models.Model):
         verbose_name_plural = 'Паспорта машин'
         verbose_name = 'Паспорт машины'
 
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    description = models.TextField(max_length=1000, null=True, blank=True, verbose_name='О себе')
-    phone = models.CharField(max_length=30, null=True, blank=True, verbose_name='Телефон')
-    address = models.CharField(max_length=250, null=True, blank=True, verbose_name='Адрес')
-
 class Favorite(models.Model):
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='favorites')
     brand = models.ForeignKey(Brand, null=True, on_delete=models.CASCADE, related_name='favorites')
