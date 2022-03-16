@@ -1,0 +1,8 @@
+{% extends "__base.html" %}
+{% block content %}
+
+{% for auto in object_list %}
+    <p>{{ auto.number }}, {{ auto.brand }}</p>
+{% endfor %}
+
+{% endblock %}

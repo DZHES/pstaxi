@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseForbidden, HttpResponseRedirect
-from motorpool.models import Brand, Favorite
+from motorpool.models import Brand, Favorite, Auto
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView, TemplateView
 from motorpool.forms import SendEmailForm, BrandCreationForm, BrandUpdateForm, AutoFormSet, BrandAddToFavoriteForm
 from django.contrib import messages
@@ -146,3 +146,7 @@ class BrandAddToFavoriteView(LoginRequiredMixin, CreateView):
 def set_paginate_view(request):
     request.session['brand_list_paginate_by'] = request.POST.get('item_count', 0)
     return HttpResponseRedirect(reverse_lazy('motorpool:brand_list'))
+
+def auto_list(request):
+    qs = Auto.objects.all()
+    return render(request, 'motorpool/auto_list.html', {'object_list': qs})

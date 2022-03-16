@@ -16,4 +16,5 @@ urlpatterns = [
     path('auto-create/<int:brand_pk>/', views.AutoCreateView.as_view(), name='auto_create'),
     path('brand-add-to-favorite/', require_POST(views.BrandAddToFavoriteView.as_view()), name='brand_add_to_favorite'),
     path('brand-set-paginate/', views.set_paginate_view, name='brand_list_set_paginate'),
+    path('auto-list/', views.auto_list, name='auto_list'),
 ]
