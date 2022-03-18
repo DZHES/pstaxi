@@ -1,5 +1,8 @@
 from django import forms
 from motorpool.models import Brand, Auto, Favorite
+from django.urls import reverse_lazy
+from motorpool.models import AutoReview, AutoRent
+from django.shortcuts import get_object_or_404
 
 class SendEmailForm(forms.Form):
     name = forms.CharField(label='Ваше имя', max_length=30, required=False)
@@ -142,3 +145,68 @@ class BrandAddToFavoriteForm(forms.ModelForm):
             raise forms.ValidationError(f'Бренд уже добавлен в избранное')
 
         return cleaned_data
+
+class AutoReviewForm(forms.ModelForm):
+    class Meta:
+        model = AutoReview
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['user'].widget = forms.HiddenInput()
+        self.fields['auto'].widget = forms.HiddenInput()
+        self.fields['rate'].widget.attrs.update({'class': 'form-control'})
+        self.fields['text'].widget.attrs.update({'class': 'form-control', 'rows': 3})
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if 'user' not in cleaned_data:
+            raise forms.ValidationError(f'Отзывы могут оставлять только зарегистрированные пользователи')
+
+        if AutoReview.objects.filter(user=cleaned_data['user'], auto=cleaned_data['auto']).exists():
+            raise forms.ValidationError(f'Вы уже оставляли отзыв для этого автомобиля')
+
+        return cleaned_data
+
+    def clean_rate(self):
+        rate = self.cleaned_data['rate']
+        if rate > 5:
+            raise forms.ValidationError('Максимальная оценка - 5')
+        return rate
+
+    def get_redirect_url(self):
+        auto = self.cleaned_data.get('auto', None)
+        if not auto:
+            auto = get_object_or_404(Auto, pk=self.data.get('auto'))
+        return auto.get_absolute_url() if auto else reverse_lazy('motorpool:auto_list')
+
+class AutoRentForm(forms.ModelForm):
+    class Meta:
+        model = AutoRent
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in ('user', 'auto'):
+            self.fields[field].widget = forms.HiddenInput()
+        for field in ('date_start', 'date_end'):
+            self.fields[field].widget = forms.DateInput(format="%Y-%m-%d", attrs={'type': 'date'})
+            self.fields[field].widget.attrs.update({'class': 'form-control'})
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if 'user' not in cleaned_data:
+            raise forms.ValidationError(f'Бронировать автомобили могут только зарегистрированные пользователи')
+
+        if AutoRent.objects.filter(user=cleaned_data['user'], auto=cleaned_data['auto']).exists():
+            raise forms.ValidationError(f'Вы уже забронировали этот автомобиль')
+
+        return cleaned_data
+
+    def get_redirect_url(self):
+        auto = self.cleaned_data.get('auto', None)
+        if not auto:
+            auto = get_object_or_404(Auto, pk=self.data.get('auto'))
+        return auto.get_absolute_url() if auto else reverse_lazy('motorpool:auto_list')

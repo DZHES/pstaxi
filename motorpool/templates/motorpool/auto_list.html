@@ -1,8 +1,64 @@
 {% extends "__base.html" %}
 {% block content %}
 
-{% for auto in object_list %}
-    <p>{{ auto.number }}, {{ auto.brand }}</p>
-{% endfor %}
+<table class="table table-hover">
+    <thead class="table-dark">
+    <tr>
+        <th scope="col">Бренд</th>
+        <th scope="col">Количество авто</th>
+        <th scope="col">Новых</th>
+        <th scope="col">Старых</th>
+        <th scope="col">Общая мощность</th>
+        <th scope="col">Авто</th>
+        <th scope="col">Год выпуска</th>
+        <th scope="col">Объем двигателя</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for brand in object_list %}
+        {% for auto in brand.all_cars_list %}
+        <tr>
+            <td>{{ brand }}</td>
+            <td>{{ brand.car_count }}</td>
+            <td>{{ brand.new_cars }}</td>
+            <td>{{ brand.old_cars }}</td>
+            <td>{{ brand.total_engine_power }}</td>
+            <td>{{ auto }}</td>
+            <td>{{ auto.year }}</td>
+            <td>{{ auto.pts.engine_volume }}</td>
+        </tr>
+        {% endfor %}
+
+        <tr><td><i>Новые</i></td></tr>
+        {% for auto in brand.new_cars_list %}
+        <tr>
+            <td>{{ brand }}</td>
+            <td>{{ brand.car_count }}</td>
+            <td>{{ brand.new_cars }}</td>
+            <td>{{ brand.old_cars }}</td>
+            <td>{{ brand.total_engine_power }}</td>
+            <td>{{ auto }}</td>
+            <td>{{ auto.year }}</td>
+            <td>{{ auto.pts.engine_volume }}</td>
+        </tr>
+        {% endfor %}
+
+        <tr><td><i>Старые</i></td></tr>
+        {% for auto in brand.old_cars_list %}
+        <tr>
+            <td>{{ brand }}</td>
+            <td>{{ brand.car_count }}</td>
+            <td>{{ brand.new_cars }}</td>
+            <td>{{ brand.old_cars }}</td>
+            <td>{{ brand.total_engine_power }}</td>
+            <td>{{ auto }}</td>
+            <td>{{ auto.year }}</td>
+            <td>{{ auto.pts.engine_volume }}</td>
+        </tr>
+        {% endfor %}
+    {% endfor %}
+    </tbody>
+</table>
 
 {% endblock %}
+

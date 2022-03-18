@@ -1,13 +1,17 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseForbidden, HttpResponseRedirect
-from motorpool.models import Brand, Favorite, Auto
+from motorpool.models import Brand, Favorite, Auto, AutoReview, AutoRent
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView, TemplateView
-from motorpool.forms import SendEmailForm, BrandCreationForm, BrandUpdateForm, AutoFormSet, BrandAddToFavoriteForm
+from motorpool.forms import (SendEmailForm, BrandCreationForm, BrandUpdateForm, AutoFormSet, BrandAddToFavoriteForm,
+                             AutoReviewForm, AutoRentForm)
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic.edit import ProcessFormView
 from django.views.decorators.http import require_POST
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Count, Sum, Q, Prefetch, Avg
+
+
 
 class BrandListView(ListView):
     model = Brand
@@ -148,5 +152,57 @@ def set_paginate_view(request):
     return HttpResponseRedirect(reverse_lazy('motorpool:brand_list'))
 
 def auto_list(request):
-    qs = Auto.objects.all()
+    cars_qs = Auto.objects.select_related('pts')
+    prefetch_all_cars = Prefetch('cars', queryset=cars_qs.all(), to_attr='all_cars_list')
+    prefetch_new_cars = Prefetch('cars', queryset=cars_qs.filter(year__gt=2010), to_attr='new_cars_list')
+    prefetch_old_cars = Prefetch('cars', queryset=cars_qs.filter(year__lt=2010), to_attr='old_cars_list')
+    qs = Brand.objects.prefetch_related(prefetch_all_cars, prefetch_new_cars, prefetch_old_cars).annotate(
+        car_count=Count('cars'),
+        total_engine_power=Sum('cars__pts__engine_power'),
+        new_cars=Count('cars', Q(cars__year__gt=2010)),
+        old_cars=Count('cars', Q(cars__year__lt=2010))
+    )
+
     return render(request, 'motorpool/auto_list.html', {'object_list': qs})
+
+class AutoDetailView(DetailView):
+    model = Auto
+    template_name = 'motorpool/auto_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['reviews'] = self.object.reviews.select_related('user')
+        context['review_form'] = AutoReviewForm(initial={'user': self.request.user, 'auto': self.object})
+        context['rent_form'] = AutoRentForm(initial={'user': self.request.user, 'auto': self.object})
+        return context
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.select_related('brand').annotate(review_count=Count('reviews'), rate=Avg('reviews__rate'))
+        return qs
+
+class AutoSendReview(CreateView):
+    model = AutoReview
+    form_class = AutoReviewForm
+
+    def get_success_url(self):
+        return self.object.auto.get_absolute_url()
+
+    def form_invalid(self, form):
+        messages.error(self.request, form.errors)
+        return HttpResponseRedirect(form.get_redirect_url())
+
+class AutoRentView(CreateView):
+    model = AutoRent
+    form_class = AutoRentForm
+
+    def get_success_url(self):
+        return self.object.auto.get_absolute_url()
+
+    def form_invalid(self, form):
+        messages.error(self.request, form.errors)
+        return HttpResponseRedirect(form.get_redirect_url())
+
+    def form_valid(self, form):
+        messages.success(self.request, f'Вы успешно забронировали автомобиль!')
+        return super().form_valid(form)

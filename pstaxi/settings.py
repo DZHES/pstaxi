@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'debug_toolbar',
 
     #Third Party apps
     'django_cleanup.apps.CleanupConfig',
@@ -58,6 +59,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -178,3 +180,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 
 import django_heroku
 django_heroku.settings(locals())
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
