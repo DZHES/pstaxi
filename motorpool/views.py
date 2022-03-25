@@ -3,15 +3,24 @@ from django.http import HttpResponseForbidden, HttpResponseRedirect
 from motorpool.models import Brand, Favorite, Auto, AutoReview, AutoRent
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView, TemplateView
 from motorpool.forms import (SendEmailForm, BrandCreationForm, BrandUpdateForm, AutoFormSet, BrandAddToFavoriteForm,
-                             AutoReviewForm, AutoRentForm)
+                             AutoReviewForm, AutoRentForm, AutoFilterForm)
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic.edit import ProcessFormView
 from django.views.decorators.http import require_POST
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Sum, Q, Prefetch, Avg
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
+class CacheMixin(object):
+    cache_timeout = 60
 
+    def get_cache_timeout(self):
+        return self.cache_timeout
+
+    def dispatch(self, *args, **kwargs):
+        return cache_page(self.get_cache_timeout())(super(CacheMixin, self).dispatch)(*args, **kwargs)
 
 class BrandListView(ListView):
     model = Brand
@@ -151,23 +160,10 @@ def set_paginate_view(request):
     request.session['brand_list_paginate_by'] = request.POST.get('item_count', 0)
     return HttpResponseRedirect(reverse_lazy('motorpool:brand_list'))
 
-def auto_list(request):
-    cars_qs = Auto.objects.select_related('pts')
-    prefetch_all_cars = Prefetch('cars', queryset=cars_qs.all(), to_attr='all_cars_list')
-    prefetch_new_cars = Prefetch('cars', queryset=cars_qs.filter(year__gt=2010), to_attr='new_cars_list')
-    prefetch_old_cars = Prefetch('cars', queryset=cars_qs.filter(year__lt=2010), to_attr='old_cars_list')
-    qs = Brand.objects.prefetch_related(prefetch_all_cars, prefetch_new_cars, prefetch_old_cars).annotate(
-        car_count=Count('cars'),
-        total_engine_power=Sum('cars__pts__engine_power'),
-        new_cars=Count('cars', Q(cars__year__gt=2010)),
-        old_cars=Count('cars', Q(cars__year__lt=2010))
-    )
-
-    return render(request, 'motorpool/auto_list.html', {'object_list': qs})
-
-class AutoDetailView(DetailView):
+class AutoDetailView(CacheMixin, DetailView):
     model = Auto
     template_name = 'motorpool/auto_detail.html'
+    cache_timeout = 1 * 60
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -206,3 +202,36 @@ class AutoRentView(CreateView):
     def form_valid(self, form):
         messages.success(self.request, f'Вы успешно забронировали автомобиль!')
         return super().form_valid(form)
+
+class AutoListView(ListView):
+    model = Auto
+    template_name = 'motorpool/auto_list.html'
+    paginate_by = 50
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['count'] = self.object_list.count()
+        context['filter_form'] = AutoFilterForm(self.request.GET)
+        return context
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        form = AutoFilterForm(self.request.GET)
+        if form.is_valid():
+            filter_brand = form.cleaned_data['brand']
+            filter_class = form.cleaned_data['auto_class']
+            filter_options = form.cleaned_data['options']
+            if filter_brand:
+                queryset = queryset.filter(brand=filter_brand)
+            if filter_class:
+                queryset = queryset.filter(auto_class__in=filter_class)
+            if filter_options:
+                for option in filter_options:
+                    queryset = queryset.filter(options__in=[option])
+        queryset = queryset.select_related('brand').annotate(review_count=Count('reviews'), rate=Avg('reviews__rate'))
+
+        return queryset
+
+@cache_page(20)
+def auto_list_cache(request):
+    return render(request, 'motorpool/auto_list_cache.html', {'object_list': Auto.objects.all()})

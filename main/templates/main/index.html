@@ -19,17 +19,10 @@
                         Забронировать авто
                     </div>
                     <div class="card-body">
-                        <form action="">
-                            <div class="mb-3">
-                                <h5 class="mb-2">Класс авто:</h5>
-                                <select class="form-select">
-                                    <option selected>....................</option>
-                                    <option value="1">Эконом</option>
-                                    <option value="2">Комфорт</option>
-                                    <option value="3">Бизнес</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Найти</button>
+                        <form action="." method="get">
+                            {{ filter_form }}
+                            <input type="hidden" name="search" value="1">
+                            <button type="submit" class="btn btn-primary mt-3">Найти</button>
                         </form>
                     </div>
                 </div>
@@ -46,14 +39,14 @@
         {% for brand in brand_list %}
         <div class="col-lg-4">
             <div class="card mb-3">
-                <a href="#" class="text-center">
+                <a href="{% url 'motorpool:auto_list' %}?brand={{ brand.id }}" class="text-center">
                     <img src="{{ brand.logo_url }}" class="card-img-top avatar-xxl" alt="brand">
                 </a>
                 <div class="card-body">
                     <h5 class="card-title">
-                        <a href="#" class="text-decoration-none">{{ brand.title }}</a>
+                        <a href="{% url 'motorpool:auto_list' %}?brand={{ brand.id }}" class="text-decoration-none">{{ brand.title }}</a>
                     </h5>
-                    <p class="card-text">$58.00 Per day</p>
+                    <p class="card-text">{{ brand.car_count }} авто</p>
                 </div>
             </div>
         </div>

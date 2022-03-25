@@ -1,0 +1,9 @@
+{% extends "__base.html" %}
+{% load cache %}
+{% block content %}
+{% cache 5 brand %}
+{% for auto in object_list %}
+<p>{{ auto.brand }}, {{ auto.pts.engine_power }}</p>
+{% endfor %}
+{% endcache %}
+{% endblock %}

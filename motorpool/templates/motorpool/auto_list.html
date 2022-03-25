@@ -1,64 +1,64 @@
 {% extends "__base.html" %}
+{% load pstaxitags %}
+{% block title %}PS-Taxi - список автомобилей
+{% endblock %}
+
 {% block content %}
 
-<table class="table table-hover">
-    <thead class="table-dark">
-    <tr>
-        <th scope="col">Бренд</th>
-        <th scope="col">Количество авто</th>
-        <th scope="col">Новых</th>
-        <th scope="col">Старых</th>
-        <th scope="col">Общая мощность</th>
-        <th scope="col">Авто</th>
-        <th scope="col">Год выпуска</th>
-        <th scope="col">Объем двигателя</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for brand in object_list %}
-        {% for auto in brand.all_cars_list %}
-        <tr>
-            <td>{{ brand }}</td>
-            <td>{{ brand.car_count }}</td>
-            <td>{{ brand.new_cars }}</td>
-            <td>{{ brand.old_cars }}</td>
-            <td>{{ brand.total_engine_power }}</td>
-            <td>{{ auto }}</td>
-            <td>{{ auto.year }}</td>
-            <td>{{ auto.pts.engine_volume }}</td>
-        </tr>
-        {% endfor %}
+{% with "Автомобили PS-Taxi" as header %}
+    {% include "snippets/_wrapper.html" %}
+{% endwith %}
 
-        <tr><td><i>Новые</i></td></tr>
-        {% for auto in brand.new_cars_list %}
-        <tr>
-            <td>{{ brand }}</td>
-            <td>{{ brand.car_count }}</td>
-            <td>{{ brand.new_cars }}</td>
-            <td>{{ brand.old_cars }}</td>
-            <td>{{ brand.total_engine_power }}</td>
-            <td>{{ auto }}</td>
-            <td>{{ auto.year }}</td>
-            <td>{{ auto.pts.engine_volume }}</td>
-        </tr>
-        {% endfor %}
+<!-- START CARD -->
+<div class="container my-4 py-4">
+    <h3>Найдено автомобилей: {{ count }}</h3>
+    <p>Выбери лучшее авто на свой вкус</p>
+    <div class="row mt-4">
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <form action="." method="get">
+                        {{ filter_form }}
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">Фильтровать</button>
+                            <a href="{% url 'motorpool:auto_list' %}" class="btn btn-outline-danger">Сбросить</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            {% for auto in object_list %}
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body row">
+                    <div class="col-lg-3">
+                        <a href="{{ auto.get_absolute_url }}">
+                            <img src="{{ auto.logo_url }}" class="img-fluid" alt="auto">
+                        </a>
+                    </div>
+                    <div class="col-lg-9">
+                        <small class="text-muted">{{ auto.get_auto_class_display }}</small>
+                        <h5>
+                            <a href="{{ auto.get_absolute_url }}" class="text-decoration-none">{{ auto.brand.title }}</a>
+                        </h5>
+                        <p>
+                            <span class="badge bg-warning text-white">{{ auto.rate|floatformat:1|default:0 }}/5</span>
+                            <small>({{ auto.review_count }} {% plural auto.review_count "отзыв" "отзыва" "отзывов" %})</small>
+                        </p>
+                        <p class="mt-4">год выпуска: {{ auto.year }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
 
-        <tr><td><i>Старые</i></td></tr>
-        {% for auto in brand.old_cars_list %}
-        <tr>
-            <td>{{ brand }}</td>
-            <td>{{ brand.car_count }}</td>
-            <td>{{ brand.new_cars }}</td>
-            <td>{{ brand.old_cars }}</td>
-            <td>{{ brand.total_engine_power }}</td>
-            <td>{{ auto }}</td>
-            <td>{{ auto.year }}</td>
-            <td>{{ auto.pts.engine_volume }}</td>
-        </tr>
-        {% endfor %}
-    {% endfor %}
-    </tbody>
-</table>
+            {% include "snippets/_pagination.html" %}
+        </div>
+
+    </div>
+</div>
+<!-- END CARD -->
+
+{% include "snippets/_cta.html" %}
 
 {% endblock %}
 

@@ -1,5 +1,5 @@
 from django import forms
-from motorpool.models import Brand, Auto, Favorite
+from motorpool.models import Brand, Auto, Favorite, Option
 from django.urls import reverse_lazy
 from motorpool.models import AutoReview, AutoRent
 from django.shortcuts import get_object_or_404
@@ -210,3 +210,21 @@ class AutoRentForm(forms.ModelForm):
         if not auto:
             auto = get_object_or_404(Auto, pk=self.data.get('auto'))
         return auto.get_absolute_url() if auto else reverse_lazy('motorpool:auto_list')
+
+class AutoFilterForm(forms.Form):
+    brand = forms.ModelChoiceField(label='Бренд', queryset=Brand.objects.all(), required=False)
+    auto_class = forms.MultipleChoiceField(label='Класс авто', choices=Auto.AUTO_CLASS_CHOICES, required=False)
+    options = forms.ModelMultipleChoiceField(label='Опции', queryset=Option.objects.all(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['brand'].widget.attrs.update({'class': 'form-select'})
+        self.fields['auto_class'].widget.attrs.update({'class': 'form-select', 'multiple': True})
+        self.fields['options'].widget.attrs.update({'class': 'form-select', 'multiple': True})
+
+class AutoFilterFormAutoClass(forms.Form):
+    auto_class = forms.ChoiceField(label='Класс авто', choices=Auto.AUTO_CLASS_CHOICES, required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['auto_class'].widget.attrs.update({'class': 'form-select'})
