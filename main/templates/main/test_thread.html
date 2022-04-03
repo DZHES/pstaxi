@@ -1,0 +1,64 @@
+{% extends "__base.html" %}
+{% block title %}Тест Thread{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h2>Тест CPU bound</h2>
+            <hr>
+            <table class="table table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th scope="col">Тип</th>
+                    <th scope="col">Время</th>
+                    <th scope="col">Количество итераций</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Синхронное выполнение</td>
+                    <td>{{ cpu_synchronous_time }}</td>
+                    <td>{{ cpu_iterations }}</td>
+                </tr>
+                {% for thread_result in cpu_threads_results %}
+                <tr>
+                    <td>{{ thread_result.id }}</td>
+                    <td>{{ thread_result.time }}</td>
+                    <td>{{ thread_result.iterations }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <h2>Тест IO bound</h2>
+            <hr>
+            <table class="table table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th scope="col">Тип</th>
+                    <th scope="col">Время</th>
+                    <th scope="col">Количество итераций</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Синхронное выполнение</td>
+                    <td>{{ io_synchronous_time }}</td>
+                    <td>{{ io_iterations }}</td>
+                </tr>
+                {% for thread_result in io_threads_results %}
+                <tr>
+                    <td>{{ thread_result.id }}</td>
+                    <td>{{ thread_result.time }}</td>
+                    <td>{{ thread_result.iterations }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
